@@ -1,0 +1,82 @@
+int sen_value;
+int sound_value;
+int button_value;
+int sound_pin=A1;
+int sen_pin=11;
+int buz = 4;
+int button_pin=12;
+int vib_mot=10;
+boolean button=LOW;
+boolean trigger=LOW;
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(6,5);
+
+void setup()
+{
+  pinMode(buz, OUTPUT);
+  pinMode(vib_mot, OUTPUT);
+  pinMode(sen_pin, INPUT);
+  pinMode(sound_pin, INPUT);
+  pinMode(button_pin, INPUT);
+  Serial.begin(9600);
+  //pinMode(button_pin,INPUT);
+  mySerial.begin(115200);  
+  
+}
+
+void loop()
+{
+  sen_value=pulseIn (sen_pin,HIGH);
+  sound_value=analogRead(sound_pin);
+  button_value=digitalRead(button_pin);
+  Serial.print("sound =");
+  Serial.println(sound_value);
+  Serial.print("vibration =43");
+  Serial.println(sen_value);
+  
+  if (sen_value==0 && sound_value>50)
+  {
+   digitalWrite(vib_mot, HIGH);
+   
+   Serial.println("vib_mot is on");
+   delay(5000);
+   button=digitalRead(button_pin);
+   Serial.println(button);
+   if(button == HIGH)
+   {
+    trigger=HIGH;
+     delay(5000);
+   digitalWrite(10, LOW);
+     Serial.println("vib_mot is off");
+    
+   }
+  
+   
+   if(trigger == LOW)
+   {
+   digitalWrite(buz,HIGH);
+
+   Serial.println("Help me plz im in trouble");
+   mySerial.println("AT+CMGF=1");    //Sets the GSM Module in Text Mode
+  delay(1000);  // Delay of 1000 milli seconds or 1 second
+  mySerial.println("AT+CMGS=\"+917207353147\"\r"); // Replace x with mobile number
+  delay(1000);
+  mySerial.println("plz help me I'm in trouble");// The SMS text you want to send
+  delay(100);
+  mySerial.println("lat:xxxxxx");
+  delay(100);
+  mySerial.println("long:xxxxxx");
+  delay(100);
+  mySerial.println((char)26);// ASCII code of CTRL+Z
+  delay(1000);
+   digitalWrite(10, LOW);
+  
+   }
+  else{
+    digitalWrite(buz,LOW);
+   digitalWrite(13, LOW);
+  
+  } 
+  }
+  
+}
